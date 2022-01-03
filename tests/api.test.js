@@ -155,10 +155,19 @@ describe("API tests", () => {
             request(app)
                 .get("/rides")
                 .expect("Content-Type", /json/)
-                .expect(200, done);
+                .expect(200, done)
         });
-    });
 
+        it("should return invalid size", (done) => {
+            request(app)
+                .get("/rides/?page=-4")
+                .expect("Content-Type", /json/)
+                .expect({
+                    error_code: "INVALID_SIZE",
+                    message: `size or page values are not valid`
+                }, done);
+        });
+    })
 
     describe("GET /rides/:rideValue", () => {
         it("should return single ride info", (done) => {
@@ -168,8 +177,9 @@ describe("API tests", () => {
                 .expect(200, done);
         });
     });
-    
+
 });
+
 
 
 

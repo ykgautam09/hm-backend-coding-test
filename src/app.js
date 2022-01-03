@@ -15,13 +15,14 @@ module.exports = (db) => {
     });
 
     app.post("/rides", jsonParser, (req, res) => {
+        // sanitize values provided
         const startLatitude = Number(req.body.start_lat);
         const startLongitude = Number(req.body.start_long);
         const endLatitude = Number(req.body.end_lat);
         const endLongitude = Number(req.body.end_long);
-        const riderName = req.body.rider_name;
-        const driverName = req.body.driver_name;
-        const driverVehicle = req.body.driver_vehicle;
+        const riderName = String(req.body.rider_name);
+        const driverName = String(req.body.driver_name);
+        const driverVehicle = String(req.body.driver_vehicle);
 
         logger.info(`${req.method} ${req.url}`);
         if (startLatitude < -90 || startLatitude > 90 || startLongitude < -180 || startLongitude > 180) {
@@ -93,9 +94,18 @@ module.exports = (db) => {
     app.get("/rides", (req, res) => {
         logger.info(`${req.method} ${req.url}`);
 
+        // sanitize query parameters
         let size = parseInt(req.query.size) || 10;  // no of records returned
         let page = parseInt(req.query.page) || 1;  // page id when records created using size
-        let startID = size * page;
+        let startID = size * (page - 1);
+        if (size < 0 || page < 0) {
+            logger.info(`size : ${size} or page : ${page} values are not valid`);
+            return res.send({
+                error_code: "INVALID_SIZE",
+                message: `size or page values are not valid`
+            });
+        }
+
         db.all(`SELECT * FROM Rides WHERE rideID>${startID} LIMIT ${size};`, function (err, rows) {
             if (err) {
                 logger.error(new Error("Unable to Read Riders data from database"));
@@ -121,6 +131,7 @@ module.exports = (db) => {
     app.get("/rides/:id", (req, res) => {
         logger.info(`${req.method} ${req.url}`);
 
+        // sanitize id params
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
             if (err) {
                 logger.error(new Error("Unable to Read Riders data from database"));
