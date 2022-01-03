@@ -12,6 +12,9 @@
     "coverage": "nyc npm run test",
     "lint": "eslint **/*.js --ignore-pattern node_modules/ --fix"
   },
+  "engines": {
+    "node": "10.24.1"
+  },
   "keywords": [
     "Hodomojo"
   ],
