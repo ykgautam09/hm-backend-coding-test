@@ -2,7 +2,7 @@
 
 const express = require("express");
 const app = express();
-const port = 8010;
+const port = process.env.PORT || 8010;
 
 const logger = require("./src/logger");
 const bodyParser = require("body-parser");
@@ -18,5 +18,5 @@ db.serialize(() => {
 
     const app = require("./src/app")(db);
 
-    app.listen(process.env.PORT, () => logger.verbose(`App started and listening on port ${port}`));
+    app.listen(port, () => logger.verbose(`App started and listening on port ${port}`));
 });
